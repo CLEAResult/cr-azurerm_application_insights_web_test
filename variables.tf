@@ -26,13 +26,18 @@ variable "application_insights_id" {
 }
 
 variable "test_name" {
-  default = "webtest"
   description = "Name of azure web test resource.  Example: \"test1.example.com-webtest\""
 }
 
 variable "list_of_test_urls" {
   type        = list(string)
   description = "List of URLs to put in the availability tests.  Example: [\"https://test1.example.com\", \"https://test2.example.com/app\"]"
+}
+
+variable "list_of_test_locations" {
+  type        = list(string)
+  default     = ["us-ca-sjc-azr","us-tx-sn1-azr","us-il-ch1-azr","us-va-ash-azr","us-fl-mia-edge"]
+  description = "List of Azure locations that will perform the specified web tests. Default is set to 5 US locations.  Microsoft recommendation is a minimum of 5 test locations with an alert threshold of N-2. Ref: https://docs.microsoft.com/en-us/azure/azure-monitor/app/monitor-web-app-availability"
 }
 
 variable "test_body" {

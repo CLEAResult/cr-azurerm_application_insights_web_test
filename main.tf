@@ -13,7 +13,7 @@ resource "azurerm_application_insights_web_test" "test" {
   frequency               = var.frequency
   timeout                 = var.timeout
   enabled                 = var.enabled
-  geo_locations           = ["us-tx-sn1-azr", "us-il-ch1-azr"]
+  geo_locations           = var.list_of_test_locations
   retry_enabled           = var.retry_enabled
   description             = var.description
 
