@@ -19,10 +19,3 @@ output "test_synthetic_id" {
   value = module.webtest.synthetic_monitor_id
 }
 
-output "test2_id" {
-  value = module.webtest2.id
-}
-
-output "test2_synthetic_id" {
-  value = module.webtest2.synthetic_monitor_id
-}

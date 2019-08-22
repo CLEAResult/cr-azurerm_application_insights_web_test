@@ -39,16 +39,12 @@ module "webtest" {
   location                = var.location
   resource_group_name     = basename(module.rg.id)
   application_insights_id = azurerm_application_insights.test.id
-  test_url                = "http://www.example.com"
-}
-
-# Test override GUID 
-module "webtest2" {
-  source                  = "../.."
-  location                = var.location
-  resource_group_name     = basename(module.rg.id)
-  application_insights_id = azurerm_application_insights.test.id
-  test_url                = "http://test.example.com"
-  override_guid           = "CEDB65C5-EFA5-498B-A7AE-E1B8150C347F"
+  test_name               = "exampleapp-webtest"
+  list_of_test_urls       = ["http://www.example.com", "https://test2.example.com/app"]
+  retry_enabled           = false
+  enabled                 = true
+  frequency               = 300
+  timeout                 = 60
+  description             = "Really handy terraform webtest"
 }
 

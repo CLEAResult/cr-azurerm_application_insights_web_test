@@ -25,13 +25,44 @@ variable "application_insights_id" {
   description = "Azure resource ID of the application insights instance that will perform these tests."
 }
 
-variable "override_guid" {
-  default     = ""
-  description = "Optional override for Terraform-created GUID. Used in test HTTP requests. Ex: 0CF14444-4A06-4B4D-8211-7C96C2B72A34"
+variable "test_name" {
+  default = "webtest"
+  description = "Name of azure web test resource.  Example: \"test1.example.com-webtest\""
 }
 
-variable "test_url" {
-  description = "URL to test. Ex: https://www.example.com/testme"
+variable "list_of_test_urls" {
+  type        = list(string)
+  description = "List of URLs to put in the availability tests.  Example: [\"https://test1.example.com\", \"https://test2.example.com/app\"]"
+}
+
+variable "test_body" {
+  default = "<Request Method=\"GET\" Guid=\"%s\" Version=\"1.1\" Url=\"%s\" ThinkTime=\"0\" Timeout=\"300\" ParseDependentRequests=\"True\" FollowRedirects=\"True\" RecordResult=\"True\" Cache=\"False\" ResponseTimeGoal=\"0\" Encoding=\"utf-8\" ExpectedHttpStatusCode=\"200\" ExpectedResponseUrl=\"\" ReportingName=\"\" IgnoreHttpStatusCode=\"False\" />"
+  description = "WebTest XML Request body.  If overridden, make sure to retain the two %s format parameters in Guid=\"%s\" and Url=\"%s\"."
+}
+
+variable "frequency" {
+  default = 300
+  description = "Interval in seconds between test runs for this WebTest. Default is 300."
+}
+
+variable "timeout" {
+  default = 30
+  description = "Seconds until this WebTest will timeout and fail. Default is 30."
+}
+
+variable "enabled" {
+  default = true
+  description = "Is the test actively being monitored."
+}
+
+variable "retry_enabled" {
+  default = true
+  description = "Allow for retries should this WebTest fail."
+}
+
+variable "description" {
+  default = ""
+  description = "Purpose/user defined descriptive test for this WebTest."
 }
 
 # Compute default name values
@@ -43,9 +74,13 @@ locals {
     "typ",
   )
 
-  test_hostname = split("/", var.test_url)[2]
-  test_guid     = var.override_guid != "" ? var.override_guid : random_uuid.test.result
+  header = "<WebTest Name=\"WebTest1\" Id=\"%s\" Enabled=\"True\" CssProjectStructure=\"\" CssIteration=\"\" Timeout=\"0\" WorkItemIds=\"\" xmlns=\"http://microsoft.com/schemas/VisualStudio/TeamTest/2010\" Description=\"%s\" CredentialUserName=\"\" CredentialPassword=\"\" PreAuthenticate=\"True\" Proxy=\"default\" StopOnError=\"False\" RecordedResultFile=\"\" ResultsLocale=\"\"><Items>"
+  footer = "</Items></WebTest>"
+
+  test_header   = format(local.header, random_uuid.parent.result, var.description)
+  test_body     = formatlist(var.test_body, random_uuid.test_guids.*.result, var.list_of_test_urls)
 }
+
 
 # This module provides a data map output to lookup naming standard references
 module "naming" {
