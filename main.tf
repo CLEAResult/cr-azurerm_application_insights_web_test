@@ -2,6 +2,9 @@ resource "random_uuid" "parent" {}
 
 resource "random_uuid" "test_guids" {
   count = length(var.list_of_test_urls)
+  keepers = {
+    url = var.list_of_test_urls[count.index]
+  }
 }
 
 resource "azurerm_application_insights_web_test" "test" {
@@ -17,6 +20,9 @@ resource "azurerm_application_insights_web_test" "test" {
   retry_enabled           = var.retry_enabled
   description             = var.description
 
-  configuration = format("%s%s%s", local.test_header, join("", local.test_body), local.footer)
+  configuration = format("%s%s%s", 
+    local.test_header, 
+    join("", formatlist(local.replace_body, random_uuid.test_guids.*.result, random_uuid.test_guids.*.keepers.url)), 
+    local.footer)
 }
 

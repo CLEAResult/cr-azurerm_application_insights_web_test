@@ -1,4 +1,4 @@
-resource_group_name = "crmodtest"
+resource_group_name = "webtest"
 rgid                = "00000"
 environment         = "test"
 location            = "westus"

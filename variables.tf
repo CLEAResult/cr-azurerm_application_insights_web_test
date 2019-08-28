@@ -34,6 +34,11 @@ variable "list_of_test_urls" {
   description = "List of URLs to put in the availability tests.  Example: [\"https://test1.example.com\", \"https://test2.example.com/app\"]"
 }
 
+variable "parse_deps" {
+  default     = "False"
+  description = "Retrieve resources that are linked to by the test URL as part of the web test. Valid values are \"True\" or \"False\". Default value is \"False\"."
+}
+
 variable "list_of_test_locations" {
   type        = list(string)
   default     = ["us-ca-sjc-azr","us-tx-sn1-azr","us-il-ch1-azr","us-va-ash-azr","us-fl-mia-edge"]
@@ -41,8 +46,8 @@ variable "list_of_test_locations" {
 }
 
 variable "test_body" {
-  default = "<Request Method=\"GET\" Guid=\"%s\" Version=\"1.1\" Url=\"%s\" ThinkTime=\"0\" Timeout=\"300\" ParseDependentRequests=\"True\" FollowRedirects=\"True\" RecordResult=\"True\" Cache=\"False\" ResponseTimeGoal=\"0\" Encoding=\"utf-8\" ExpectedHttpStatusCode=\"200\" ExpectedResponseUrl=\"\" ReportingName=\"\" IgnoreHttpStatusCode=\"False\" />"
-  description = "WebTest XML Request body.  If overridden, make sure to retain the two %s format parameters in Guid=\"%s\" and Url=\"%s\"."
+  default = "<Request Method=\"GET\" Guid=\"%s\" Version=\"1.1\" Url=\"%s\" ThinkTime=\"0\" Timeout=\"300\" ParseDependentRequests=\"PARSEDEPS\" FollowRedirects=\"True\" RecordResult=\"True\" Cache=\"False\" ResponseTimeGoal=\"0\" Encoding=\"utf-8\" ExpectedHttpStatusCode=\"200\" ExpectedResponseUrl=\"\" ReportingName=\"\" IgnoreHttpStatusCode=\"False\" />"
+  description = "WebTest XML Request body.  If overridden, make sure to retain all the string format() parameters needed by the local variable calculations."
 }
 
 variable "frequency" {
@@ -83,7 +88,7 @@ locals {
   footer = "</Items></WebTest>"
 
   test_header   = format(local.header, random_uuid.parent.result, var.description)
-  test_body     = formatlist(var.test_body, random_uuid.test_guids.*.result, var.list_of_test_urls)
+  replace_body  = replace(var.test_body, "PARSEDEPS", var.parse_deps)
 }
 
 
